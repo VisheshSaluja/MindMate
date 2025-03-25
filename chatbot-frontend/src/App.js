@@ -1,5 +1,5 @@
 // src/App.js
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 
 function App() {
@@ -7,7 +7,8 @@ function App() {
     { sender: 'bot', text: 'Hello! How can I help you today?' }
   ]);
   const [input, setInput] = useState('');
-
+  const [loading, setLoading] = useState(false);
+  const chatEndRef = useRef(null);
   const sendMessage = async () => {
     if (!input.trim()) return;
     const userMessage = { sender: 'user', text: input };
@@ -25,8 +26,12 @@ function App() {
     } catch (error) {
       setMessages(prev => [...prev, { sender: 'bot', text: 'Sorry, something went wrong.' }]);
     }
+    setLoading(false);
     setInput('');
   };
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, loading]);
 
   return (
     <div className="chat-container">
@@ -36,6 +41,8 @@ function App() {
             {msg.text}
           </div>
         ))}
+        {loading && <div className="message bot">Typing...</div>}
+        <div ref={chatEndRef} />
       </div>
       <div className="chat-input">
         <input

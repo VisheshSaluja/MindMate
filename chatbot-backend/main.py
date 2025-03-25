@@ -3,12 +3,19 @@ import requests
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
 
 # Load environment variables from .env file
 load_dotenv()
 
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Request model for incoming messages
 class ChatRequest(BaseModel):
     message: str
@@ -17,55 +24,36 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     response: str
 
-# Azure OpenAI configuration from environment variables
-AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")  # e.g., https://your-resource.openai.azure.com
-AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
-DEPLOYMENT_NAME = os.getenv("AZURE_OPENAI_DEPLOYMENT")  # e.g., text-davinci-003
-
-def call_azure_openai(prompt: str) -> str:
-    """
-    Calls the Azure OpenAI service to generate a response.
-    """
-    url = f"{AZURE_OPENAI_ENDPOINT}/openai/deployments/{DEPLOYMENT_NAME}/completions?api-version=2022-12-01"
-    headers = {
-        "Content-Type": "application/json",
-        "api-key": AZURE_OPENAI_API_KEY
-    }
-    data = {
-        "prompt": prompt,
-        "max_tokens": 150,
-        "temperature": 0.7,
-    }
-    response = requests.post(url, headers=headers, json=data)
-    if response.status_code != 200:
-        raise HTTPException(status_code=500, detail="Error calling Azure OpenAI service")
-    result = response.json()
-    return result["choices"][0]["text"].strip()
-
-def escalate_to_human(message: str):
-    """
-    Simulate escalation to a human agent.
-    In a real scenario, you could integrate with a CRM or ticketing system.
-    """
-    print("Escalating query:", message)
-    # Here you could add code to send the query to a human agent
-
-@app.post("/chat", response_model=ChatResponse)
-def chat_endpoint(chat_request: ChatRequest):
-    user_message = chat_request.message
-
-    # Check for keywords to trigger escalation
-    if "human" in user_message.lower() or "agent" in user_message.lower():
-        escalate_to_human(user_message)
-        return ChatResponse(response="I am escalating your query to a human agent. Please wait.")
-
-    try:
-        # Get response from Azure OpenAI
-        answer = call_azure_openai(user_message)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    return ChatResponse(response=answer)
 
 @app.get("/")
 def read_root():
     return {"message": "Chatbot API is running."}
+
+@app.post("/chat", response_model=ChatResponse)
+def chat(chat_request: ChatRequest):
+    user_message = chat_request.message
+    print("Received:", user_message)
+
+    # FAQ data
+    faq_data = {
+        "return policy": "Our return policy is 30 days.",
+        "delivery time": "Orders are typically delivered in 3-5 days.",
+        "support hours": "We’re available Mon–Fri, 9am to 6pm."
+    }
+
+    # Check if the user message matches any FAQ keyword
+    for keyword, answer in faq_data.items():
+        if keyword in user_message.lower():
+            return ChatResponse(response=answer)
+
+    # TEMP: Echo the input
+    return ChatResponse(response=f"You said: {user_message}")
+
+class EscalateRequest(BaseModel):
+    message: str
+
+@app.post("/escalate")
+def escalate_chat(escalate_request: EscalateRequest):
+    message = escalate_request.message
+    print("🚨 Escalated to human:", message)
+    return {"status": "Escalated", "message": message}
