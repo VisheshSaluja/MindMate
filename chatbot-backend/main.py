@@ -1,59 +1,51 @@
 import os
-import requests
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from fastapi.middleware.cors import CORSMiddleware
+from openai import OpenAI
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
+# FastAPI setup
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000"],  # adjust if needed
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# Request model for incoming messages
+
+# Pydantic models
 class ChatRequest(BaseModel):
     message: str
 
-# Response model for outgoing messages
 class ChatResponse(BaseModel):
     response: str
 
-
-@app.get("/")
-def read_root():
-    return {"message": "Chatbot API is running."}
+# Azure OpenAI setup
+token = os.getenv("GITHUB_TOKEN")
+client = OpenAI(
+    base_url="https://models.inference.ai.azure.com",
+    api_key=token,
+)
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(chat_request: ChatRequest):
-    user_message = chat_request.message
-    print("Received:", user_message)
-
-    # FAQ data
-    faq_data = {
-        "return policy": "Our return policy is 30 days.",
-        "delivery time": "Orders are typically delivered in 3-5 days.",
-        "support hours": "We’re available Mon–Fri, 9am to 6pm."
-    }
-
-    # Check if the user message matches any FAQ keyword
-    for keyword, answer in faq_data.items():
-        if keyword in user_message.lower():
-            return ChatResponse(response=answer)
-
-    # TEMP: Echo the input
-    return ChatResponse(response=f"You said: {user_message}")
-
-class EscalateRequest(BaseModel):
-    message: str
-
-@app.post("/escalate")
-def escalate_chat(escalate_request: EscalateRequest):
-    message = escalate_request.message
-    print("🚨 Escalated to human:", message)
-    return {"status": "Escalated", "message": message}
+    try:
+        response = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": chat_request.message}
+            ],
+            temperature=1.0,
+            top_p=1.0,
+            max_tokens=500,
+            model="gpt-4o"  # or "gpt-4"
+        )
+        return ChatResponse(response=response.choices[0].message.content)
+    except Exception as e:
+        print("❌ Azure OpenAI API error:", e)
+        return ChatResponse(response="Sorry, I couldn't connect to my AI brain right now.")
