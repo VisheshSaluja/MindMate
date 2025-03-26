@@ -1,50 +1,52 @@
-// src/App.js
 import React, { useState } from 'react';
 import './App.css';
+import { FaComments, FaSmile, FaClipboardList, FaBook, FaCogs, FaHeartbeat, FaHome, FaLightbulb } from 'react-icons/fa';
+
+import Home from './components/Home';
+import Chatbot from './components/Chatbot';
+import MoodTracker from './components/MoodTracker';
+import SelfAssessment from './components/SelfAssessment';
+import Journal from './components/Journal';
+import FeedbackSettings from './components/FeedbackSettings';
+import EmergencySupport from './components/EmergencySupport';
+import Recommendations from './components/Recommendations';
 
 function App() {
-  const [messages, setMessages] = useState([
-    { sender: 'bot', text: 'Hello! How can I help you today?' }
-  ]);
-  const [input, setInput] = useState('');
+  const [activeTab, setActiveTab] = useState('home');
+  const [tone, setTone] = useState('friendly');
+  const [mood, setMood] = useState('');
+  const [score, setScore] = useState(0);
+  const [darkMode, setDarkMode] = useState(false);
 
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-    const userMessage = { sender: 'user', text: input };
-    setMessages([...messages, userMessage]);
-
-    // Call the FastAPI backend
-    try {
-      const response = await fetch('http://localhost:8000/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input })
-      });
-      const data = await response.json();
-      setMessages(prev => [...prev, { sender: 'bot', text: data.response }]);
-    } catch (error) {
-      setMessages(prev => [...prev, { sender: 'bot', text: 'Sorry, something went wrong.' }]);
+  const renderTab = () => {
+    switch (activeTab) {
+      case 'chat': return <Chatbot tone={tone} />;
+      case 'mood': return <MoodTracker onMoodChange={setMood} />;
+      case 'assessment': return <SelfAssessment onScoreUpdate={setScore} />;
+      case 'journal': return <Journal />;
+      case 'feedback': return <FeedbackSettings tone={tone} setTone={setTone} />;
+      case 'emergency': return <EmergencySupport />;
+      case 'recommendations': return <Recommendations mood={mood} assessmentScore={score} />;
+      default: return <Home />;
     }
-    setInput('');
   };
 
   return (
-    <div className="chat-container">
-      <div className="chat-window">
-        {messages.map((msg, idx) => (
-          <div key={idx} className={`message ${msg.sender}`}>
-            {msg.text}
-          </div>
-        ))}
-      </div>
-      <div className="chat-input">
-        <input
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder="Type your message..."
-        />
-        <button onClick={sendMessage}>Send</button>
-      </div>
+    <div className={`App ${darkMode ? 'dark' : ''}`}>
+      <nav className="nav">
+        <button onClick={() => setActiveTab('home')}><FaHome /> Home</button>
+        <button onClick={() => setActiveTab('chat')}><FaComments /> Chatbot</button>
+        <button onClick={() => setActiveTab('mood')}><FaSmile /> Mood</button>
+        <button onClick={() => setActiveTab('assessment')}><FaClipboardList /> Assessment</button>
+        <button onClick={() => setActiveTab('journal')}><FaBook /> Journal</button>
+        <button onClick={() => setActiveTab('feedback')}><FaCogs /> Feedback</button>
+        <button onClick={() => setActiveTab('emergency')}><FaHeartbeat /> Emergency</button>
+        <button onClick={() => setActiveTab('recommendations')}><FaLightbulb /> Tips</button>
+        <button className="dark-toggle" onClick={() => setDarkMode(!darkMode)}>
+          {darkMode ? '☀️ Light Mode' : '🌙 Dark Mode'}
+        </button>
+      </nav>
+      <div className="tab-container">{renderTab()}</div>
     </div>
   );
 }

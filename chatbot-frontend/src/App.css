@@ -1,45 +1,119 @@
-/* src/App.css */
-.chat-container {
-  width: 400px;
-  margin: 50px auto;
-  font-family: Arial, sans-serif;
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap");
+
+:root {
+  --bg-light: #f5f7fa;
+  --bg-dark: #121212;
+  --primary: #5a67d8;
+  --text-light: #333;
+  --text-dark: #f5f5f5;
+  --card-bg-light: rgba(255, 255, 255, 0.8);
+  --card-bg-dark: rgba(40, 40, 40, 0.7);
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-dark: rgba(0, 0, 0, 0.5);
 }
 
-.chat-window {
-  border: 1px solid #ccc;
-  padding: 10px;
-  height: 400px;
-  overflow-y: scroll;
-  background: #f9f9f9;
+body {
+  margin: 0;
+  font-family: "Inter", sans-serif;
+  background: var(--bg-light);
+  color: var(--text-light);
+  transition: background 0.4s, color 0.4s;
 }
 
-.message {
-  margin-bottom: 10px;
-  padding: 8px;
-  border-radius: 5px;
-  max-width: 80%;
+.App.dark body,
+.App.dark {
+  background: var(--bg-dark);
+  color: var(--text-dark);
 }
 
-.message.user {
-  background: #daf1da;
-  align-self: flex-end;
-}
-
-.message.bot {
-  background: #e8e8e8;
-  align-self: flex-start;
-}
-
-.chat-input {
+.App {
+  padding: 2rem;
+  min-height: 100vh;
   display: flex;
-  margin-top: 10px;
+  flex-direction: column;
+  align-items: center;
 }
 
-.chat-input input {
-  flex: 1;
-  padding: 10px;
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 2rem;
 }
 
-.chat-input button {
-  padding: 10px 20px;
+.nav button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card-bg-light);
+  border: none;
+  padding: 10px 18px;
+  border-radius: 28px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-light);
+  box-shadow: 0 4px 12px var(--shadow-light);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.App.dark .nav button {
+  background: var(--card-bg-dark);
+  color: var(--text-dark);
+  box-shadow: 0 4px 16px var(--shadow-dark);
+}
+
+.nav button:hover {
+  transform: translateY(-2px);
+  background-color: #eef2ff;
+}
+
+.App.dark .nav button:hover {
+  background-color: #1e1e1e;
+}
+
+.nav .dark-toggle {
+  background-color: var(--primary);
+  color: white !important;
+}
+
+.tab-container {
+  width: 100%;
+  max-width: 960px;
+  padding: 2rem;
+  border-radius: 20px;
+  background: var(--card-bg-light);
+  box-shadow: 0 12px 30px var(--shadow-light);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+  animation: fadeIn 0.4s ease-in-out;
+}
+
+.App.dark .tab-container {
+  background: var(--card-bg-dark);
+  box-shadow: 0 12px 30px var(--shadow-dark);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .nav {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .tab-container {
+    padding: 1.5rem;
+  }
 }
