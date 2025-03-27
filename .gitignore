@@ -1,0 +1,11 @@
+# Virtual Env
+healthApp/
+
+# Python bytecode
+*.pyc
+__pycache__/
+
+# Environment variables
+*.env
+.env
+chatbot-backend/.env
