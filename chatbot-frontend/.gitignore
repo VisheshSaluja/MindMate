@@ -29,3 +29,6 @@ healthApp/
 # Python bytecode
 *.pyc
 __pycache__/
+
+# Databases(Local - .db files)
+*.db
