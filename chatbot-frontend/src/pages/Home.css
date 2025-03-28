@@ -1,0 +1,85 @@
+/* Home.css */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", sans-serif;
+  height: 100%;
+  background: linear-gradient(to bottom, #d6ccfa, #ece2fd);
+}
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  padding: 1rem;
+  position: relative;
+}
+
+.main-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #2e2350;
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #4d4d4d;
+  margin: 1rem 0 2rem;
+  max-width: 80%;
+}
+
+.tag {
+  background-color: #f0e8ff;
+  color: #7a55cc;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0.6rem 0;
+  box-shadow: 0 0 10px rgba(172, 144, 255, 0.2);
+}
+
+.journey-button {
+  background: linear-gradient(90deg, #9f76f4, #7e65e7);
+  color: white;
+  padding: 0.8rem 1.6rem;
+  border: none;
+  border-radius: 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 8px 20px rgba(108, 80, 250, 0.3);
+  transition: transform 0.2s;
+}
+
+.journey-button:hover {
+  transform: scale(1.05);
+}
+
+.arrow-icon {
+  stroke-width: 2.5px;
+}
+
+@media (max-width: 768px) {
+  .main-title {
+    font-size: 2rem;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+  }
+
+  .journey-button {
+    padding: 0.6rem 1.4rem;
+    font-size: 0.9rem;
+  }
+}
