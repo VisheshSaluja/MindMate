@@ -1,5 +1,6 @@
 # Virtual Env
 healthApp/
+venv/
 
 # Python bytecode
 *.pyc
